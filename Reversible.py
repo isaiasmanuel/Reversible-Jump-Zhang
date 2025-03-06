@@ -67,7 +67,9 @@ plt.show()
 
 ############# Hiperparametros de las priors
 
-A=np.array([[1,0],[0,1]]) ####Eigenvalores
+A=np.array([[1,0.],[0.,1]]) ####Eigenvalores
+# ang=np.pi/4
+# A=np.array([[np.cos(ang),-np.sin(ang)],[np.sin(ang),np.cos(ang)]]) ####Eigenvalores
 rm=1                      ###Hiperparametro lambda
 nu=np.array((4,4))        ###Hiperparametro xi
 escala=10
@@ -87,6 +89,7 @@ xi=np.ones((M,2))
 tau=np.ones(M)
 linv=np.ones((M,2))
 Z=np.random.choice(np.arange(M), size=n)
+
 
 #######Priors hyperparametros
 priorXi=sp.stats.multivariate_normal(mean=nu,cov=rho**2*np.diag((1,1)))
@@ -123,10 +126,10 @@ for q in np.arange(10000):
     linv=np.copy(linvhist[-1])
     Z=np.copy(Zhist[-1])
 
-    PasoProb=(1,1,1,1,1)
+    PasoProb=(1,1,1,1,1,1)
     # PasoProb=(0,0,0,0,1)
     # PasoProb=(1,1,1,1,0)
-    step=np.random.choice(np.arange(5), p=PasoProb/np.sum(PasoProb))
+    step=np.random.choice(np.arange(6), p=PasoProb/np.sum(PasoProb))
 
 
     XZ=(pd.DataFrame((X[:,0],X[:,1],np.copy(Z)))).transpose()
@@ -159,7 +162,7 @@ for q in np.arange(10000):
         w=np.random.dirichlet(delta+ni)
 
     ############stepb
-    if step==1 and M<20:
+    if step==1 :
         # Xbar=XZ.groupby('g').sum()
         Xbar=np.zeros((M,2))
         for i in range(M):
@@ -270,46 +273,7 @@ for q in np.arange(10000):
         ps=0.5
         split=np.random.choice((0,1),p=(ps,1-ps))
         #####split
-        if split==1:
-            
-
-# UTIL PARA PRUEBAS
-
-# ############################################################################################################################################
-#             w=whist[-1]
-#             mu=muhist[-1]
-#             lam=lamhist[-1]
-#             xi=xihist[-1]
-#             tau=tauhist[-1]
-#             linv=linvhist[-1]
-#             Z=Zhist[-1]
-
-#             step=np.random.choice(np.arange(5))
-
-
-#             XZ=(pd.DataFrame((X[:,0],X[:,1],np.copy(Z)))).transpose()
-#             XZ.columns=("x","y","g")
-
-
-#             ############Actualizar
-#             M=len(mu)
-#             Sigmam=np.zeros((M,2,2))
-
-#             for i in range(M):
-#                 Sigmam[i,:,:]=A@np.diag(1/lam[i])@A.T
-
-#             detSigma=np.zeros(M)
-
-#             for i in range(M):
-#                 detSigma[i]=np.linalg.det(Sigmam[i,:,:])
-
-
-#             ni=np.zeros(M)
-#             for i in range(M):
-#                 ni[i]=np.sum(XZ["g"]==i)
-#             # print(ni)
-# ############################################################################################################################################
-
+        if split==1 and M<20:
 
 
             #split
@@ -538,6 +502,15 @@ for q in np.arange(10000):
                 tauhist.append(tau)
                 linvhist.append(linv)
                 Zhist.append(Z)
+            else :
+                
+                whist.append(whist[-1])
+                muhist.append(muhist[-1])
+                lamhist.append(lamhist[-1])
+                xihist.append(xihist[-1])
+                tauhist.append(tauhist[-1])
+                linvhist.append(linvhist[-1])
+                Zhist.append(Zhist[-1])
 
         ################################################################################################################################################
 
@@ -706,28 +679,10 @@ for q in np.arange(10000):
             except :
                 R=0
                 
-                
-            #Deje fijo rk como 1 entonces el cociente del penultimo renglon es 1/sqrt(pi)
-
-
-            # x = np.linspace(-5,10,50)
-            # y = np.linspace(-5,10,50)
-            # Xg,Yg = np.meshgrid(x,y)
-
-            # pdf = np.zeros(Xg.shape)
-            # for i in range(Xg.shape[0]):
-            #     for j in range(Xg.shape[1]):
-            #         Obs=np.array((Xg[i,j], Yg[i,j]))
-            #         pdf[i,j] = Mmvn(Obs,mu,lam,w)
-            #         # pdf[i,j] = Mmvn(Obs,muhist[-1],lamhist[-1],whist[-1])
-
-            # plt.plot()
-            # plt.contourf(Xg, Yg, np.exp(pdf), cmap='viridis',levels=1000)
-            # plt.scatter(mu[:,0],mu[:,1])
-            # plt.scatter(X[:,0],X[:,1],alpha=0.1)
-            # plt.title(R)
-            # plt.colorbar()
-            # plt.show()
+            
+            
+            
+            
             if np.random.uniform()<np.min((R,1)):
                 print("combine",R,M)
                 reorder=mu[:,0].argsort()
@@ -752,7 +707,136 @@ for q in np.arange(10000):
                 tauhist.append(tau)
                 linvhist.append(linv)
                 Zhist.append(Z)
+            else :
+                
+                whist.append(whist[-1])
+                muhist.append(muhist[-1])
+                lamhist.append(lamhist[-1])
+                xihist.append(xihist[-1])
+                tauhist.append(tauhist[-1])
+                linvhist.append(linvhist[-1])
+                Zhist.append(Zhist[-1])
 
+
+
+
+
+
+
+    ############stepf
+    if step==5:
+        birth=np.random.choice((0,1),1)[0]
+        if birth==1 and M<20:
+
+            Xiaux=priorXi.rvs(1)
+            TauAux=priorTau.rvs(1)
+            linvAux=priorlinv.rvs(2)            
+            
+            wdens=sp.stats.beta( a=1,b=M)
+            waux1=wdens.rvs()
+            
+            lam0aux=1/sp.stats.gamma.rvs(size=1,a=rm/2,scale=1/(linvAux[0]/2))[0]
+            lam1aux=1/sp.stats.gamma.rvs(size=1,a=rm/2,scale=1/(linvAux[0]/2))[0]
+            lamaux=np.array((lam0aux,lam1aux))    
+            SigmaAux=A@np.diag(1/lamaux.T)@A.T
+            muaux=sp.stats.multivariate_normal.rvs(size=(1,1),mean=nu, cov= TauAux*SigmaAux)
+            
+            w=np.hstack((w*(1-waux1),waux1)) #####Aqui creci w
+            
+            M0=(M-len(np.unique(Z))+1)
+            
+            R=sc.beta(delta,  M*delta)*waux1**(delta-1)*(1-waux1)**(len(X)+M*delta+1)*(M+1)* 1/(M0*wdens.pdf(waux1)) #Notar M-M+1 entre ambos renglones
+            
+            
+            
+            if np.random.uniform()<np.min((R,1)):
+                
+                mu=np.vstack((mu,muaux))
+                lam=np.vstack((lam,lamaux))
+                xi=np.vstack((xi,Xiaux))
+                tau=np.append(tau, TauAux)
+                linv=np.vstack((linv,linvAux))
+
+                
+                print("combine",R,M)
+                reorder=mu[:,0].argsort()
+                mu=mu[reorder,:]
+                lam=lam[reorder,:]
+                w=w[reorder]
+                xi=xi[reorder,:]
+                tau=tau[reorder]
+                linv=linv[reorder,:]
+
+
+                whist.append(w)
+                muhist.append(mu)
+                lamhist.append(lam)
+                xihist.append(xi)
+                tauhist.append(tau)
+                linvhist.append(linv)
+                Zhist.append(Z)
+
+            else :
+
+                whist.append(whist[-1])
+                muhist.append(muhist[-1])
+                lamhist.append(lamhist[-1])
+                xihist.append(xihist[-1])
+                tauhist.append(tauhist[-1])
+                linvhist.append(linvhist[-1])
+                Zhist.append(Zhist[-1])
+            
+            
+    
+        elif birth==0 and M>1:
+            
+            muere=np.random.choice(range(M))
+            waux1=w[muere]
+            w=np.delete(w,muere)
+            w=w/np.sum(w)
+            M0=(M-len(np.unique(Z))+1)
+            wdens=sp.stats.beta( a=1,b=M-1)
+            R=sc.beta(delta,  (M-1)*delta)*waux1**(delta-1)*(1-waux1)**(len(X)+(M-1)*delta+1)*(M-1+1)* 1/(M0*wdens.pdf(waux1)) #Notar M-M+1 entre ambos renglones
+
+
+            if np.random.uniform()<np.min((R,1)):
+                
+                mu=np.delete(mu,muere,0)
+                lam=np.delete(lam,muere,0)
+                xi=np.delete(xi,muere,0)
+                tau=np.delete(tau,muere)
+                linv=np.delete(linv,muere,0)
+
+                
+                print("combine",R,M)
+                reorder=mu[:,0].argsort()
+                mu=mu[reorder,:]
+                lam=lam[reorder,:]
+                w=w[reorder]
+                xi=xi[reorder,:]
+                tau=tau[reorder]
+                linv=linv[reorder,:]
+
+
+                whist.append(w)
+                muhist.append(mu)
+                lamhist.append(lam)
+                xihist.append(xi)
+                tauhist.append(tau)
+                linvhist.append(linv)
+                Zhist.append(Z)
+
+            else :
+
+                whist.append(whist[-1])
+                muhist.append(muhist[-1])
+                lamhist.append(lamhist[-1])
+                xihist.append(xihist[-1])
+                tauhist.append(tauhist[-1])
+                linvhist.append(linvhist[-1])
+                Zhist.append(Zhist[-1])
+                        
+            
 
 
 ########################
@@ -849,7 +933,7 @@ plt.show()
 
 
 
-# UTIL PARA PRUEBAS
+# # UTIL PARA PRUEBAS
 
 # ############################################################################################################################################
 #             w=whist[-1]
